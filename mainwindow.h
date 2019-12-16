@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QMainWindow>
 
+#include "qcustomplot.h"
 #include "diffequation.h"
 #include "doublevalidator.h"
 
@@ -29,6 +30,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    QCPLayoutGrid *subLayout;
 
     DoubleValidator *doubleValidator;
 

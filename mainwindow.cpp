@@ -6,7 +6,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     this->setFixedSize(1018, 568);
     QString backgroundColor("background-color:rgb(239, 239, 239);");
+    ui->plots->setVisible(false);
+    ui->plots->legend->setVisible(true);
     ui->plots->setBackground(this->palette().background().color());
+    ui->plots->legend->setBrush(this->palette().background().color());
+    ui->plots->xAxis->setLabel("x");
+    ui->plots->yAxis->setLabel("y");
+    subLayout = new QCPLayoutGrid;
+    ui->plots->plotLayout()->addElement(1, 0, subLayout);
+    subLayout->setMargins(QMargins(5, 0, 5, 5));
+    subLayout->addElement(0, 0, ui->plots->legend);
+    ui->plots->legend->setFillOrder(QCPLegend::foColumnsFirst);
+    ui->plots->plotLayout()->setRowStretchFactor(1, 0.001);
     ui->solutionsOutput->setStyleSheet(backgroundColor);
     ui->mathExpression->setStyleSheet(backgroundColor);
     ui->x_0->setStyleSheet(backgroundColor);
@@ -14,11 +25,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->x_max->setStyleSheet(backgroundColor);
     ui->h_->setStyleSheet(backgroundColor);
     ui->calculate->setShortcut(Qt::Key_Return);
-    int maxLength = 11;
-    ui->x_0->setMaxLength(maxLength);
-    ui->y_0->setMaxLength(maxLength);
-    ui->x_max->setMaxLength(maxLength);
-    ui->h_->setMaxLength(maxLength);
+    ui->x_0->setMaxLength(11);
+    ui->y_0->setMaxLength(11);
+    ui->x_max->setMaxLength(11);
+    ui->h_->setMaxLength(11);
     doubleValidator = new DoubleValidator(-9999999999, 9999999999, this);
     ui->x_0->setValidator(doubleValidator);
     ui->y_0->setValidator(doubleValidator);
@@ -75,15 +85,19 @@ void MainWindow::on_calculate_clicked(void)
 
 void MainWindow::showPlots(void)
 {
-    ui->plots->xAxis->setLabel("x");
-    ui->plots->yAxis->setLabel("y");
+    ui->plots->setVisible(true);
+    ui->plots->clearGraphs();
     ui->plots->xAxis->setRange(diffEquation->get_x()->first(), diffEquation->get_x()->last());
     ui->plots->yAxis->setRange(diffEquation->get_y_min(), diffEquation->get_y_max());
     ui->plots->addGraph();
+    ui->plots->graph(0)->setName("Cauchy-Euler");
     ui->plots->graph(0)->setPen(QPen(Qt::blue));
+    ui->plots->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 2));
     ui->plots->graph(0)->setData(*diffEquation->get_x(), *diffEquation->get_y_Cauchy_Euler());
     ui->plots->addGraph();
+    ui->plots->graph(1)->setName("Runge-Kutta");
     ui->plots->graph(1)->setPen(QPen(Qt::red));
+    ui->plots->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 2));
     ui->plots->graph(1)->setData(*diffEquation->get_x(), *diffEquation->get_y_Runge_Kutta());
     ui->plots->replot();
 }
@@ -105,5 +119,6 @@ void MainWindow::printSolutions(void)
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete subLayout;
     delete doubleValidator;
 }
